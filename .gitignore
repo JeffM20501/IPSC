@@ -59,6 +59,7 @@ build/
 
 # SQLite
 # Add SQLite-specific ignores here
+instance/
 
 # MySQL
 # Add MySQL-specific ignores here
