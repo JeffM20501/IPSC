@@ -64,10 +64,11 @@ pip install -r requirements.txt
 
 #### PostgreSQL Setup
 
-1. **Install PostgreSQL**:  
+**1. Install PostgreSQL**:  
+
 - Follow the [DigitalOcean guide](https://www.digitalocean.com/community/tutorials/how-to-install-postgresql-on-ubuntu-20-04-quickstart) for Ubuntu, or use the appropriate installer for your OS.
 
-2. **Start the PostgreSQL service** (if it's not running automatically):
+**2. Start the PostgreSQL service** (if it's not running automatically):
 
 ```bash
    sudo systemctl start postgresql   # Linux
@@ -75,19 +76,19 @@ pip install -r requirements.txt
    brew services start postgresql    # macOS
 ```
 
-3. **Create the database**
+**3. Create the database**
 
 ```bash
 sudo -u postgres psql -c "CREATE DATABASE ipsc_db;"
 ```
 
-1. **Ensure the database user and password**
+**4. Ensure the database user and password**
 
 ```bash
 sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
 ```
 
-**Add migration commands to create the tables**
+**5. Add migration commands to create the tables**
 
 - After setting up the database and installing dependencies, run the following to create all tables:
 
