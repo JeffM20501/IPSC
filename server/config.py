@@ -7,13 +7,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app=Flask(__name__)
-app.config.from_prefixed_env()
-
 metadata=MetaData()
 db=SQLAlchemy(metadata=metadata)
+migrate=Migrate()
 
-Migrate(app,db)
-db.init_app(app)
+bcrypt=Bcrypt()
 
-bcrypt=Bcrypt(app)
+
+def config_app(app):
+    app.config.from_prefixed_env()
+    db.init_app(app)
+    bcrypt.init_app(app)
+    migrate.init_app(app,db)
