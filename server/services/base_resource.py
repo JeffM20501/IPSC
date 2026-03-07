@@ -26,7 +26,7 @@ class AllResource(Resource):
                 setattr(item,field,value)
             db.session.add(item)
             db.session.commit()
-            return make_response(item.to_dict(rules=self.rules), 200)
+            return make_response({'data':item.to_dict(rules=self.rules)}, 200)
         except Exception as e:
             return {'errors':[str(e)]},400
 
@@ -43,7 +43,8 @@ class SingleResource(Resource):
         
         if not item:
             abort(404, message=f'{self.resource_items} not found')
-        return make_response(item.to_dict(rules=self.rules), 200)
+        
+        return make_response({'data':item.to_dict()},200)
     
     
     def patch(self,id):
@@ -54,13 +55,15 @@ class SingleResource(Resource):
         
         for field,value in request.json.items():
             if hasattr(item,field):
-                try:
-                    setattr(item,field,value)
-                    db.session.commit()
-                    return make_response(item.to_dict(),200)
-                
-                except Exception as e:
-                    return {'errors':[str(e)]}, 400
+                setattr(item,field,value)
+        
+        try:
+            db.session.commit()
+            return make_response({'data':item.to_dict()},201)        
+            
+        except Exception as e:
+            db.session.rollback()
+            return {'errors':[str(e)]}, 400
     
     def delete(self,id):
         item=self.Model.query.filter_by(id=id).first()
