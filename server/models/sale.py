@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship
 
 class Sale():
     __tablename__="sales"  
+    serialize_rule = ("-order.sales")
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer,  db.ForeignKey("users.id"), nullable=False)
@@ -11,7 +12,7 @@ class Sale():
     quantity = db.Column(db.Integer, nullable=False)
     total_price = db.Column(db.Decimal, nullable=False)  
 
-    order = db.relationship("Order", bacl_populates="sales")
-    
+    order = db.relationship("Order", back_populates="sales")
+
 
      
