@@ -1,8 +1,10 @@
+# server/models/__init__.py
+
 from .user import User
-from .alert import Alert
+from .supplier import Supplier
+from .product import Product  
 from .order import Order
 from .sale import Sale
-from .product import Product
-from .supplier import Supplier
+from .alert import Alert      
 
-__all__=['User', 'Alert', 'Order', 'Sale', 'Product', 'Supplier']
+__all__ = ['User', 'Supplier', 'Product', 'Order', 'Sale', 'Alert']
