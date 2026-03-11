@@ -12,7 +12,7 @@ function Dashboard() {
   const [filter, setFilter] = useState('')
 
   // context
-  const {user, products} = useOutletContext()
+  const {user, products, alerts, sales} = useOutletContext()
 
   // variables
   const safeCheckProducts=products||[]
@@ -29,24 +29,36 @@ function Dashboard() {
     setFilter(filter)
   }
 
-  function calculateSummary(data){
+  function calculateSummaryProducts(data){
         let TotalStock = 0
         let totalDemand = 0
-        let totalSales = 0 
-        let totalAlerts = 0
         data.forEach(item=>{
         totalDemand+=item.demand_forecast||0
         TotalStock+=item.stock||0
-        if(item.alerts&&item.alerts.length>0){
-            totalAlerts+=item.alerts.length
-        }
-        if(item.sales&&item.sales.length>0){
-            totalSales+=item.sales.reduce((sum, sales)=>sum+sales.unitsSold,0)
-        }
         })
-        return {TotalStock, totalDemand, totalSales, totalAlerts}
+        return {TotalStock, totalDemand}
     }
-    const {TotalStock, totalDemand, totalSales, totalAlerts} = calculateSummary(products)
+    const {TotalStock, totalDemand} = calculateSummaryProducts(products)
+
+    function calculateSummaryAlerts(data){
+      let totalAlerts=0
+      if(data&&data.length>0){
+        totalAlerts+=data.length
+      }
+      return totalAlerts
+    }
+    const totalAlerts=calculateSummaryAlerts(alerts)
+
+    function calculateSummarySales(data){
+      let totalSales=0
+      if(data&&data.length>0){
+        totalSales+=data.reduce((sum, sales)=>sum+sales.unitsSold,0)
+      }
+      return totalSales
+    }
+    const totalSales=calculateSummarySales(sales)
+
+
 
   return (
     <>

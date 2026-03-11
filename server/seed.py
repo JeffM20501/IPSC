@@ -18,7 +18,7 @@ with app.app_context():
     
     user=User(
         fullname='Jack Snow',
-        email='runn@ipsc.com',
+        email='jack@ipsc.com',
         role='admin',
         profile_image="https://i.pravatar.cc/150?img=12"
     )

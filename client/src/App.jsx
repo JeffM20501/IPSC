@@ -11,12 +11,59 @@ import Login from './pages/Login/Login'
 function App() {
   const [products, setProducts] = useState([])
   const [user, setUser] = useState(null)
+  const [suppliers, setSuppliers]=useState([])
+  const [orders,setOrders]=useState([])
+  const [sales,setSales]=useState([])
+  const [alerts,setAlerts]=useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [sending, setSending] = useState(false)
 
 
   useEffect(()=>{
+
+    async function loadData() {
+      try{
+        const checkSessionRes=await fetch('/api/check_session')
+        if(!checkSessionRes) throw new Error('Not Authenticated')
+        
+          const userData=await checkSessionRes.json()
+          setUser(userData)
+
+          const [productsRes,suppliersRes, ordersRes,salesRes,alertsRes]=await Promise.all([
+            fetch('/api/products'),
+            fetch('/api/suppliers'),
+            fetch('/api/orders'),
+            fetch('/api/sales'),
+            fetch('/api/alerts')
+          ])
+
+          const extractData=async(result)=>{
+            if(result.value.ok){
+              const json=await result.value.json()
+              return json.data||[]
+            }
+            return []
+          }
+
+          setProducts(await extractData(productsRes))
+          setOrders(await extractData(ordersRes))
+          setSuppliers(await extractData(suppliersRes))
+          setAlerts(await extractData(alertsRes))
+          setSales(await extractData(salesRes))
+          setOrders(await extractData(ordersRes))
+      }
+      catch(err){
+        if(err.message=='Not Authenticated'){
+          return
+        }else{
+          setError(err.message)
+        }
+      }
+      finally{
+        setLoading(false)
+      }
+    }
   
     fetch('/api/check_session')
       .then(r=>{
@@ -24,33 +71,8 @@ function App() {
         return r.json()  //get user 
         
       })
-      .then(user=>{
-        setUser(user)
-        return fetch('/api/products')
-      })
-        .then(r=>{
-          if(!r.ok) throw new Error('Error when Fetching products')
-          return r.json()
-        })
-        .then(products=>{
-          setProducts(products.data||[])
-          setLoading(false)
-        })
-        .catch(err=>{
-          console.warn('Could not load products', err.message)
-          setProducts([])
-        })
-      .catch(err=>{
-        if (err.message==='Not Authenticated'){
-          setLoading(false)
-        }else{
-          setError(err.message)
-          setLoading(false)
-        }
-      })
-      .finally(()=>{
-        setLoading(false)
-      })
+      
+      loadData()
     
   },[])
 
@@ -96,7 +118,11 @@ function App() {
           ?<FetchError error={error}/>
           :<Outlet context={{
             user:user, 
-            products:products, 
+            products:products,
+            sales:sales,
+            orders:orders,
+            suppliers:suppliers,
+            alerts:alerts,
             onProfileEdit:handleProfileEdit,
             sending:sending
           }}/>
