@@ -17,59 +17,42 @@ function App() {
 
 
   useEffect(()=>{
-    async function autoLogin(){
-      try{
-        const r = await fetch('/check_session')
+  
+    fetch('/api/check_session')
+      .then(r=>{
+        if (!r.ok) throw new Error('Not Authenticated')
+        return r.json()  //get user 
         
-        if (!r.ok){
-        throw new Error('Not Authenticated')}
-        
-        const user= await r.json()
+      })
+      .then(user=>{
         setUser(user)
-
-        const resProducts=await fetch('/products')
-        const productData= await resProducts.json()
-        setProducts(productData)
-        setLoading(false)
-      }catch((err)=>{
-        console.log(err)
+        return fetch('/api/products')
+      })
+        .then(r=>{
+          if(!r.ok) throw new Error('Error when Fetching products')
+          return r.json()
+        })
+        .then(products=>{
+          setProducts(products.data||[])
+          setLoading(false)
+        })
+        .catch(err=>{
+          console.warn('Could not load products', err.message)
+          setProducts([])
+        })
+      .catch(err=>{
+        if (err.message==='Not Authenticated'){
+          setLoading(false)
+        }else{
+          setError(err.message)
+          setLoading(false)
+        }
+      })
+      .finally(()=>{
         setLoading(false)
       })
-    }
+    
   },[])
-
-
-  // useEffect(()=>{
-
-  //   async function handlefetch(url, setterFunc){
-  //     try{
-  //       const r  = await fetch(`${APIBaseurl}/${url}`)
-
-  //       if(!r.ok){
-  //         throw new Error(`Error status: ${r.status}`)
-  //       }
-  //       const data = await r.json()
-  //       // console.log(`Data received: ${url}`, data)
-  //       setterFunc(data)
-  //     }catch(error){
-  //       // console.error(error)
-  //       setError(error.message)
-  //     }
-  //   }
-
-    // when all promise are resolved
-  //   Promise.all([
-  //     handlefetch('users', setUsers),
-  //     handlefetch('products', setProducts)
-  //   ])
-  //     .then(()=>{setLoading(true)})
-  //     .catch(()=>{setLoading(true)}) // show page even when it has error
-
-  // }, [APIBaseurl])
-
-  // console.table(users)
-  // console.table(products)
-
 
   async function handleProfileEdit(e, formObj){
     e.preventDefault()
@@ -82,33 +65,37 @@ function App() {
       body:JSON.stringify(formObj)
     }
     try{
-      const r = await fetch(`${APIBaseurl}/users/${encodeURIComponent(formObj.id)}`, configObj)
+      const r = await fetch(`/api/users/${encodeURIComponent(formObj.id)}`, configObj)
+      
       if(!r.ok){
           throw new Error(`Error status: ${r.status}`)
         }
-      const updatedUserDta = await r.json()
-      setUsers(prev=>prev.map(user=>user.id===updatedUserDta.id?updatedUserDta:user))
-      setSending(prev=>!prev)
+      
+        const updatedUserDta = await r.json()
+      setUser(updatedUserDta)
       console.log("Success", updatedUserDta)
     }catch(error){
       console.log(error)
       setError(error.message)
+    }finally{
+      setSending(prev=>!prev)
     }
   }
+
+  if (loading) return <SkeletomComp/>
 
   if(!user) return <Login onLogin={setUser}/>
 
   return (
     <>
-    {loading
-    ?<main>
-      <Header users={users}/>
+    <main>
+      <Header user={user}/>
       <section className='main-wrapper'>
         <aside><NavBar/></aside>
         { error
           ?<FetchError error={error}/>
           :<Outlet context={{
-            users:users, 
+            user:user, 
             products:products, 
             onProfileEdit:handleProfileEdit,
             sending:sending
@@ -116,7 +103,6 @@ function App() {
         }
       </section>
     </main>
-    :<SkeletomComp/>}
     </>
   )
 }

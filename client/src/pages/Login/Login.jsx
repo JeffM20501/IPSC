@@ -3,8 +3,12 @@ import IPSC from '../../assets/logo.png'
 import './Login.css'
 import { useState } from 'react'
 import { FaEye, FaEyeSlash, FaLock } from 'react-icons/fa'
+import { useNavigate } from 'react-router-dom'
 
 function Login({onLogin}) {
+
+    const navigate=useNavigate()
+
     const [formObj,setFormObj]=useState({
         email:'',
         password:''
@@ -21,7 +25,6 @@ function Login({onLogin}) {
         setShowPassword(prev=>!prev)
     }
 
-
     async function handleSubmit(e){
         e.preventDefault();
         const config_obj={
@@ -32,10 +35,11 @@ function Login({onLogin}) {
             body:JSON.stringify(formObj)
         }
     
-        const r = await fetch('/login',config_obj)
+        const r = await fetch('/api/login',config_obj)
         if (r.ok){
             const user = await r.json()
             onLogin(user)
+            navigate('/')
         }else{
             const err= await r.json()
             setError(err.error||'Login Failed')

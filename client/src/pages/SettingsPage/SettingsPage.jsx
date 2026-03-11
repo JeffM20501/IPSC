@@ -5,7 +5,7 @@ import LoadingCircle from '../../components/LoadingCircle';
 
 function SettingsPage() {
   // Get users from Outlet context
-  const { users, onProfileEdit, sending } = useOutletContext();
+  const { user, onProfileEdit, sending } = useOutletContext();
 
   // Active tab
   const [activeTab, setActiveTab] = useState("profile");
@@ -27,18 +27,17 @@ function SettingsPage() {
 
   // Populate form when users data is available
   useEffect(() => {
-    if (users && users.length > 0) {
-      const user = users[0]; // using first user for demo
+    if (user) {
       setFormObj({
-        name:user.name||"",
+        name:user.fullname||"",
         email:user.email||"",
         id:user.id||""
       })
-      setProfilePic(user.avatar)
+      setProfilePic(user.profile_image)
       setUsername(user.username || '');
       setPassword(user.password || '');
     }
-  }, [users]);
+  }, [user]);
 
   // Apply dark mode on mount
   useEffect(() => {
@@ -54,6 +53,12 @@ function SettingsPage() {
     else document.body.classList.remove("darkmode");
   }, [darkMode]);
 
+  function handleChange(e){
+    const {name, value} = e.target
+    setFormObj(prev=>({...prev, [name]:value}))
+    // console.log(formObj)
+  }
+
   const handleThemeToggle = () => {
     setDarkMode(prev=>!prev);
     if (darkMode) document.body.classList.add("darkmode");
@@ -63,13 +68,6 @@ function SettingsPage() {
   const saveSecurity = () => {
     alert("Security saved!");
   };
-
-
-  function handleChange(e){
-    const {name, value} = e.target
-    setFormObj(prev=>({...prev, [name]:value}))
-    // console.log(formObj)
-  }
 
   return (
     <div className="settings-page">

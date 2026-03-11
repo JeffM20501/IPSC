@@ -12,20 +12,17 @@ function Dashboard() {
   const [filter, setFilter] = useState('')
 
   // context
-  const {users, products} = useOutletContext()
-  
-  //rendering
-  const mappedUser = users.map(user=>{
-    return(<h2>Hello <span>{user.name}</span>👋. Welcome back!!</h2>)
-  })
+  const {user, products} = useOutletContext()
 
   // variables
-  const filteredProducts=products.filter(pro=>{
+  const safeCheckProducts=products||[]
+
+  const filteredProducts=safeCheckProducts.filter(pro=>{
     if(filter==="") return true
     return pro.category === filter
   }) 
 
-  const nonDuplicateCategory = [... new Set(products.map(item=>item.category))]//avoid duplicates
+  const nonDuplicateCategory = [... new Set(safeCheckProducts.map(item=>item.category))]//avoid duplicates
 
   // functions
   function handleFilter(filter){
@@ -56,7 +53,7 @@ function Dashboard() {
     <main className='dashboard-main'>
       <div className='dashboard-head'>
         <h1>Invertory OverView</h1>
-        {mappedUser}
+        <h2>Hello <span>{user.fullname}</span>👋. Welcome back!!</h2>
       </div>
       <DashForecast TotalStock={TotalStock} totalDemand={totalDemand} totalSales={totalSales} totalAlerts={totalAlerts}/>
       <section className='dashboard-chart'>
