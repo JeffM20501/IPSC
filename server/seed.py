@@ -21,9 +21,9 @@ with app.app_context():
     print('Deleted existing data')
 
     users = [
-        User(fullName='Jack Snow', email='runn@ipsc.com', role='admin', profile_image="https://i.pravatar.cc/150?img=12"),
-        User(fullName='Alice Johnson', email='alice@ipsc.com', role='staff', profile_image="https://i.pravatar.cc/150?img=5"),
-        User(fullName='Bob Smith', email='bob@ipsc.com', role='staff', profile_image="https://i.pravatar.cc/150?img=10")
+        User(fullname='Jack Snow', email='runn@ipsc.com', role='admin', profile_image="https://i.pravatar.cc/150?img=12"),
+        User(fullname='Alice Johnson', email='alice@ipsc.com', role='staff', profile_image="https://i.pravatar.cc/150?img=5"),
+        User(fullname='Bob Smith', email='bob@ipsc.com', role='staff', profile_image="https://i.pravatar.cc/150?img=10")
     ]
     for u in users:
         u.password_hash = '12345'
@@ -50,6 +50,7 @@ with app.app_context():
     ]
     for a in alerts:
         db.session.add(a)
+    
 
     db.session.commit()
     print("Database seeded with Users, Products, and Alerts!")

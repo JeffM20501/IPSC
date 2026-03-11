@@ -44,6 +44,8 @@ function App() {
           const extractData=async(result)=>{
             if(result.value.ok&&result.status==='fulfilled'){
               const json=await result.value.json()
+              // console.log(json.data)
+              // console.log(result.value)
               return json.data||[]
             }
             return []
