@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-from ..config import db
-from flask import Blueprint, jsonify, request
-=======
 from server.config import db
 from sqlalchemy_serializer import SerializerMixin
->>>>>>> 15da04f (fixing alerts.py)
 
 
 class Alert(db.Model, SerializerMixin):
