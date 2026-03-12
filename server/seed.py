@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import sys 
 import os
-from sqlalchemy import text
 from server.models import User, Supplier, Product, Order, Sale, Alert 
 from server.config import db
 from server.app import create_app
@@ -18,7 +17,6 @@ with app.app_context():
     Product.query.delete()
     Supplier.query.delete()
     User.query.delete()
-    db.session.execute(text(f'TRUNCATE TABLE {User.__tablename__} RESTART IDENTITY;'))
     db.session.commit()
     print('Deleted existing data')
 
@@ -45,10 +43,10 @@ with app.app_context():
     db.session.flush() 
 
     alerts = [
-        Alert(message=f"CRITICAL: {products[0].name} is running low on stock!", product_id=products[0].id, status="unread"),
-        Alert(message=f"New supplier GTC successfully integrated", product_id=products[0].id, status="read"),
-        Alert(message=f"WARNING: {products[2].name} stock below 25 units", product_id=products[2].id, status="unread"),
-        Alert(message=f"INFO: {products[1].name} is fully stocked", product_id=products[1].id, status="read")
+        Alert(message=f"CRITICAL: {products[0].name} is running low on stock!", product_id=products[0].id, status="unread", type="critical"),
+        Alert(message=f"New supplier GTC successfully integrated", product_id=products[0].id, status="read", type="info"),
+        Alert(message=f"WARNING: {products[2].name} stock below 25 units", product_id=products[2].id, status="unread", type="warning"),
+        Alert(message=f"INFO: {products[1].name} is fully stocked", product_id=products[1].id, status="read", type="info")
     ]
     for a in alerts:
         db.session.add(a)
