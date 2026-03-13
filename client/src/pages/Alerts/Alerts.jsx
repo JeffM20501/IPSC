@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import './Alerts.css';
-import { AiOutlineExclamationCircle, AiOutlineWarning, AiOutlineInfoCircle } from 'react-icons/ai';
+import {
+  AiOutlineExclamationCircle,
+  AiOutlineWarning,
+  AiOutlineInfoCircle
+} from 'react-icons/ai';
 
 function Alerts() {
   const [alerts, setAlerts] = useState([]);
@@ -23,6 +27,7 @@ function Alerts() {
           return {
             ...alert,
             product_name: product ? product.name : null,
+            type: alert.message.split(':')[0]  // Extract CRITICAL/WARNING/INFO
           };
         });
 
@@ -70,7 +75,7 @@ function Alerts() {
   const sortedAlerts = [...alerts].sort((a, b) => (a.status === 'read') - (b.status === 'read'));
 
   const filteredAlerts = sortedAlerts.filter(alert => {
-    const matchFilter = filter === 'all' || alert.type === filter;
+    const matchFilter = filter === 'all' || alert.type.toLowerCase() === filter;
     const matchSearch =
       alert.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (alert.product_name && alert.product_name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -78,10 +83,12 @@ function Alerts() {
   });
 
   const getIcon = (type) => {
-    if (type === 'critical') return <AiOutlineExclamationCircle color="#cc0000" size={22} />;
-    if (type === 'warning') return <AiOutlineWarning color="#ff9900" size={22} />;
-    if (type === 'info') return <AiOutlineInfoCircle color="#0077cc" size={22} />;
-    return null;
+    switch (type) {
+      case 'CRITICAL': return <AiOutlineExclamationCircle color="#cc0000" size={22} />;
+      case 'WARNING': return <AiOutlineWarning color="#ff9900" size={22} />;
+      case 'INFO': return <AiOutlineInfoCircle color="#0077cc" size={22} />;
+      default: return null;
+    }
   };
 
   if (loading) return <p>Loading alerts...</p>;
@@ -115,7 +122,7 @@ function Alerts() {
         {filteredAlerts.map(alert => (
           <div
             key={alert.id}
-            className={`alert-card ${alert.type || ''} ${alert.status === 'read' ? 'acknowledged fade-out' : ''}`}
+            className={`alert-card ${alert.type.toLowerCase()} ${alert.status === 'read' ? 'acknowledged fade-out' : ''}`}
           >
             <div className="alert-top">
               <h3>
@@ -129,8 +136,8 @@ function Alerts() {
               {alert.status !== 'read' && (
                 <button onClick={() => acknowledgeAlert(alert.id)}>Acknowledge</button>
               )}
-          <button className="delete" onClick={() => deleteAlert(alert.id)}>Delete</button>            
-          </div>
+              <button className="delete" onClick={() => deleteAlert(alert.id)}>Delete</button>
+            </div>
           </div>
         ))}
       </div>
