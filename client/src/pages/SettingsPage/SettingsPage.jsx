@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import './SettingsPage.css';
-import { FaEject } from 'react-icons/fa';
+import { FaEject, FaUser } from 'react-icons/fa';
 import LoadingCircle from '../../components/LoadingCircle';
 
 function SettingsPage() {
@@ -30,7 +30,7 @@ function SettingsPage() {
   useEffect(() => {
     if (user) {
       setFormObj({
-        name:user.fullname||"",
+        fullname:user.fullname||"",
         email:user.email||"",
         id:user.id||""
       })
@@ -95,16 +95,16 @@ function SettingsPage() {
           <section>
             <div className="content">
               <h3>Profile Section</h3>
-              <img className="avatar" src={profilePic} alt='profile image'/>
+              {profilePic?<img className="avatar" src={profilePic} alt='profile image'/>:<FaUser/>}
 
               <form onSubmit={(e)=>onProfileEdit(e, formObj)} className='profile-form'>
                 <label>Name</label>
-                <input name='name' value={formObj.name} onChange={handleChange} placeholder="Enter your name" />
+                <input name='fullname' value={formObj.fullname} onChange={handleChange} placeholder="Enter your name" />
 
                 <label>Email</label>
                 <input name='email' value={formObj.email} onChange={handleChange} placeholder="Enter your email" />
 
-                <button className={!sending?'save-btn':"saving"}>{!sending?'Save Changes'
+                <button type='submit' className={!sending?'save-btn':"saving"}>{!sending?'Save Changes'
                     :
                     <LoadingCircle/>
                 }</button>

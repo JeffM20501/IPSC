@@ -7,17 +7,28 @@ import Forecast from './pages/Forecast/Forecast'
 import Analytics from './pages/Analytics/Analytics'
 import ErrorPage from './pages/ErrorPage/ErrorPage'
 import Login from './pages/Login/Login'
+import SignUp from './pages/SignUp/SignUp'
+import PublicLayout from './PublicLayout'
 
 const routes = [
     {
-        path:"/",
-        element:<App/>,
-        errorElement:<ErrorPage/>,
+        element:<PublicLayout/>,
         children:[
             {
                 path:'/login',
                 element:<Login/>
             },
+            {
+                path:'/signup',
+                element:<SignUp/>
+            }
+        ]
+    },
+    {
+        // path:"/",
+        element:<App/>,
+        errorElement:<ErrorPage/>,
+        children:[
             {
                 path:"/",
                 element:<Dashboard/>

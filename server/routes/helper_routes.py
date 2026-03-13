@@ -17,6 +17,13 @@ api_v1.add_resource(
 )
 
 api_v1.add_resource(
+    SignUp,
+    '/signup',
+    endpoint='/signup',
+    resource_class_args=(User,)
+)
+
+api_v1.add_resource(
     CheckSession,
     '/check_session',
     endpoint='/check_session',

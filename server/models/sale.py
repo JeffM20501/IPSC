@@ -13,7 +13,7 @@ class Sale(db.Model, SerializerMixin):
     quantity = db.Column(db.Integer, nullable=False)
     total_price = db.Column(db.Numeric(10,2), nullable=False)  
 
-    order = db.relationship("Order", back_populates="sales")
+    # order = db.relationship("Order", back_populates="sales")
 
 
      
