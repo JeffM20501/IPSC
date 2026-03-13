@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 app = create_app()
 fake = Faker()
 
-NUM_USERS = 5
+NUM_RANDOM_USERS = 3
 NUM_SUPPLIERS = 3
 NUM_PRODUCTS = 10
 NUM_ORDERS = 15
@@ -18,12 +18,11 @@ NUM_SALES = 20
 NUM_ALERTS = 10
 
 def random_date_within(days=30):
-    """Return a random datetime within the past `days` days"""
     return datetime.now() - timedelta(days=random.randint(0, days), hours=random.randint(0,23), minutes=random.randint(0,59))
 
 with app.app_context():
     print("Creating database tables if they don't exist...")
-    # db.create_all()
+    db.create_all()
 
     print("Clearing old data...")
     db.session.execute(text(f'DELETE FROM {Alert.__tablename__}'))
@@ -36,7 +35,26 @@ with app.app_context():
 
     print("Seeding Users...")
     users = []
-    for _ in range(NUM_USERS):
+
+    # Fixed users for easy login
+    fixed_users = [
+        {"fullname": "Alice Johnson", "email": "alice@ipsc.com", "role": "admin"},
+        {"fullname": "Bob Smith", "email": "bob@ipsc.com", "role": "staff"},
+        {"fullname": "Charlie Davis", "email": "charlie@ipsc.com", "role": "staff"}
+    ]
+    for udata in fixed_users:
+        u = User(
+            fullname=udata["fullname"],
+            email=udata["email"],
+            role=udata["role"],
+            profile_image=f"https://i.pravatar.cc/150?img={random.randint(1,70)}"
+        )
+        u.password_hash = "12345"
+        db.session.add(u)
+        users.append(u)
+
+    # Random users
+    for _ in range(NUM_RANDOM_USERS):
         u = User(
             fullname=fake.name(),
             email=fake.unique.email(),
@@ -48,7 +66,11 @@ with app.app_context():
         users.append(u)
     db.session.flush()
 
-    print("Seeding Suppliers...")
+    print("Fixed users for login:")
+    for u in users:
+        print(f"{u.fullname} | {u.email} | password: 12345")
+
+    # Seed Suppliers
     suppliers = []
     for _ in range(NUM_SUPPLIERS):
         s = Supplier(
@@ -59,7 +81,7 @@ with app.app_context():
         suppliers.append(s)
     db.session.flush()
 
-    print("Seeding Products...")
+    # Seed Products
     products = []
     for _ in range(NUM_PRODUCTS):
         product = Product(
@@ -72,13 +94,11 @@ with app.app_context():
         products.append(product)
     db.session.flush()
 
-    print("Seeding Orders...")
+    # Seed Orders
     orders = []
     for _ in range(NUM_ORDERS):
-        status = random.choice(["read", "unread"])
         o = Order(
             user_id=random.choice(users).id,
-            status=random.choice(products).id,
             total_amount=random.randint(1000, 50000),
             order_date=random_date_within()
         )
@@ -86,7 +106,7 @@ with app.app_context():
         orders.append(o)
     db.session.flush()
 
-    print("Seeding Sales...")
+    # Seed Sales
     for _ in range(NUM_SALES):
         product = random.choice(products)
         quantity = random.randint(1, 5)
@@ -95,11 +115,11 @@ with app.app_context():
             product_id=product.id,
             quantity=quantity,
             total_price=round(product.price * quantity, 2),
-            # created_at=random_date_within()
+            created_at=random_date_within()
         )
         db.session.add(sale)
 
-    print("Seeding Alerts...")
+    # Seed Alerts
     for _ in range(NUM_ALERTS):
         product = random.choice(products)
         status = random.choice(["read", "unread"])
