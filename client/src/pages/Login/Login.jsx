@@ -2,10 +2,10 @@ import React from 'react'
 import IPSC from '../../assets/logo.png'
 import './Login.css'
 import { useState } from 'react'
-import { FaEye, FaEyeSlash, FaLock } from 'react-icons/fa'
-import { useNavigate } from 'react-router-dom'
+import { FaEye, FaEyeSlash, FaLock, FaEnvelope } from 'react-icons/fa'
+import { useNavigate, Link } from 'react-router-dom'
 
-function Login({onLogin}) {
+function Login() {
 
     const navigate=useNavigate()
 
@@ -37,8 +37,6 @@ function Login({onLogin}) {
     
         const r = await fetch('/api/login',config_obj)
         if (r.ok){
-            const user = await r.json()
-            onLogin(user)
             navigate('/')
         }else{
             const err= await r.json()
@@ -54,10 +52,7 @@ function Login({onLogin}) {
         
         <form className='sign-in-form' onSubmit={handleSubmit}>
             <label htmlFor="">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
-                    <path d="M112 128C85.5 128 64 149.5 64 176C64 191.1 71.1 205.3 83.2 214.4L291.2 370.4C308.3 383.2 331.7 383.2 348.8 370.4L556.8 214.4C568.9 205.3 576 191.1 576 176C576 149.5 554.5 128 528 128L112 128zM64 260L64 448C64 483.3 92.7 512 128 512L512 512C547.3 512 576 483.3 576 448L576 260L377.6 408.8C343.5 434.4 296.5 434.4 262.4 408.8L64 260z"/>
-                </svg>
-
+                <FaEnvelope size={20}/>
                 <input
                     name='email'
                     placeholder='Email Address'
@@ -83,7 +78,7 @@ function Login({onLogin}) {
             </label>
             {error&&<p className='error'>{error}</p>}
             <button type='submit'>Sign In</button>
-            <p>Don't have an account? <a href='#'>Sign Up</a></p>
+            <p>Don't have an account?<Link to='/signup'>Sign up</Link></p>
         </form>
 
     </section>

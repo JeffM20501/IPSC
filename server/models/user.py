@@ -18,7 +18,7 @@ class User(db.Model, SerializerMixin):
     created_at=db.Column(db.DateTime, server_default=db.func.now())
     updated_at=db.Column(db.DateTime, server_default=db.func.now())
     
-    orders=db.relationship('Order', backref='user')
+    orders=db.relationship('Order', backref='user', cascade="all, delete-orphan")
     
     @validates('fullname')
     def validate_fullname(self,key,fullname):

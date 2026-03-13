@@ -1,5 +1,5 @@
 import React from 'react'
-import { useOutletContext } from 'react-router-dom'
+import { useOutletContext,Navigate } from 'react-router-dom'
 import './Dashboard.css'
 import DashBoardInventory from './components/DashBoardInventory'
 import Selector from './components/Selector'
@@ -13,6 +13,7 @@ function Dashboard() {
 
   // context
   const {user, products, alerts, sales} = useOutletContext()
+  if(!user) return <Navigate to='/login'/>
 
   // variables
   const safeCheckProducts=products||[]
@@ -22,7 +23,8 @@ function Dashboard() {
     return pro.category === filter
   }) 
 
-  const nonDuplicateCategory = [... new Set(safeCheckProducts.map(item=>item.category))]//avoid duplicates
+  const nonDuplicateCategory = [... new Set(safeCheckProducts.map(item=>item.name||'Electronics'))]//avoid duplicates
+  // console.log(nonDuplicateCategory)
 
   // functions
   function handleFilter(filter){
