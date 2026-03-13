@@ -27,6 +27,30 @@ class Login(Resource):
         
         session['user_id']=user.id
         return user.to_dict(),200
+    
+class SignUp(Resource):
+    def __init__(self,model):
+        super().__init__()
+        self.Model=model
+    
+    def post(self):
+        data=request.get_json()
+        
+        if not data:
+            return {'error':'No Input'},400
+        
+        # email=data.get('email')
+        # password=data.get('password')
+        # role=data.get('role')
+        item=self.Model()
+        try:
+            for field,value in request.json.items():
+                setattr(item,field,value)
+            db.session.add(item)
+            db.session.commit()
+            return make_response({'data':item.to_dict()}, 201)
+        except Exception as e:
+            return {'error':str(e)},400
 
 class CheckSession(Resource):
     def __init__(self,model):
@@ -72,7 +96,7 @@ class AllResource(Resource):
             items_dict=[i.to_dict() for i in query.all()]
             return make_response({'data':items_dict, 'total':total_count},200)
         except Exception as e:
-            return {'errors':[str(e)]}
+            return {'error':str(e)}
     
     def post(self):
         self.authenticate()
@@ -85,7 +109,7 @@ class AllResource(Resource):
             db.session.commit()
             return make_response({'data':item.to_dict(rules=self.rules)}, 201)
         except Exception as e:
-            return {'errors':[str(e)]},400
+            return {'error':str(e)},400
 
 
 class UserOrders(AllResource):
@@ -101,7 +125,7 @@ class UserOrders(AllResource):
             items_dict=[i.to_dict() for i in query.all()]
             return make_response({'data':items_dict, 'total':total_count},200)
         except Exception as e:
-            return {'errors':[str(e)]}
+            return {'error':str(e)}
 
 class UserSales(Resource):
     def authenticate(self):
@@ -156,7 +180,7 @@ class SingleResource(Resource):
             
         except Exception as e:
             db.session.rollback()
-            return {'errors':[str(e)]}, 400
+            return {'error':str(e)}, 400
     
     def delete(self,id):
         self.authenticate()

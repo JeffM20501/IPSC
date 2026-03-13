@@ -10,15 +10,18 @@ app = create_app()
 
 with app.app_context():
     print("Creating database tables if they don't exist...")
-    db.create_all()
+    # db.create_all()
 
     print("Clearing old data...")
     Alert.query.delete()
     Sale.query.delete()
+    Order.query.delete()
     Product.query.delete()
     Supplier.query.delete()
     User.query.delete()
-    db.session.execute(text(f'TRUNCATE TABLE {User.__tablename__} RESTART IDENTITY;'))
+    db.session.execute(text(
+        f'TRUNCATE TABLE {User.__tablename__}, {Supplier.__tablename__}, {Sale.__tablename__}, {Order.__tablename__}, {Product.__tablename__}, {Alert.__tablename__}  RESTART IDENTITY CASCADE;')
+    )
     db.session.commit()
     print('Deleted existing data')
 

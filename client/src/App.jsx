@@ -6,7 +6,7 @@ import Header from './components/Header'
 import {useState, useEffect} from 'react'
 import SkeletomComp from './components/SkeletomComp'
 import FetchError from './components/FetchError'
-import Login from './pages/Login/Login'
+
 
 function App() {
 
@@ -18,7 +18,7 @@ function App() {
   const [orders,setOrders]=useState([])
   const [sales,setSales]=useState([])
   const [alerts,setAlerts]=useState([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [sending, setSending] = useState(false)
 
@@ -26,11 +26,13 @@ function App() {
   useEffect(()=>{
 
     async function loadData() {
+      setLoading(true)
       try{
         const checkSessionRes=await fetch('/api/check_session')
         if(!checkSessionRes.ok) throw new Error('Not Authenticated')
         
           const userData=await checkSessionRes.json()
+          console.log(userData)
           setUser(userData)
 
           const [productsRes,suppliersRes, ordersRes,salesRes,alertsRes]=await Promise.allSettled([
@@ -42,13 +44,17 @@ function App() {
           ])
 
           const extractData=async(result)=>{
-            if(result.value.ok&&result.status==='fulfilled'){
+            if(result.status!=='fulfilled'||!result.value.ok) return []
+
+            try{
               const json=await result.value.json()
               // console.log(json.data)
               // console.log(result.value)
               return json.data||[]
+            }catch(err){
+              console.log(err)
+              return []
             }
-            return []
           }
 
           setProducts(await extractData(productsRes))
@@ -56,25 +62,23 @@ function App() {
           setSuppliers(await extractData(suppliersRes))
           setAlerts(await extractData(alertsRes))
           setSales(await extractData(salesRes))
-          setOrders(await extractData(ordersRes))
-      }
-      catch(err){
+      
+      }catch(err){
         if(err.message=='Not Authenticated'){
           setUser(null)
-          setLoading(false)
+          navigate('/login')
         }else{
           setError(err.message)
-          setLoading(false)
         }
-      }
-      finally{
+      }finally{
         setLoading(false)
       }
     }
       
     loadData()
     
-  },[])
+  },[navigate])
+  console.log(user)
 
   async function handleProfileEdit(e, formObj){
     e.preventDefault()
@@ -125,8 +129,6 @@ function App() {
   }
 
   if (loading) return <SkeletomComp/>
-
-  if(!user) return <Login onLogin={setUser}/>
 
   return (
     <>

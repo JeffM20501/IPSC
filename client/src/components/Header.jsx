@@ -12,11 +12,11 @@ function Header({user}) {
             <p>Inventory Prediction and Supply Chain- (IPSC)</p>
         </div>
         <div>
-          <HeaderUserProfile
+          {user?<HeaderUserProfile
             key={user.id}
             name={user.fullname}
             avatar={user.profile_image}
-          />
+          />:null}
         </div>
     </header>
   )
