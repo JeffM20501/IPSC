@@ -24,7 +24,7 @@ function Dashboard() {
   }) 
 
   const nonDuplicateCategory = [... new Set(safeCheckProducts.map(item=>item.name||'Electronics'))]//avoid duplicates
-  console.log(nonDuplicateCategory)
+  // console.log(nonDuplicateCategory)
 
   // functions
   function handleFilter(filter){

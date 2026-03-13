@@ -96,7 +96,7 @@ class AllResource(Resource):
             items_dict=[i.to_dict() for i in query.all()]
             return make_response({'data':items_dict, 'total':total_count},200)
         except Exception as e:
-            return {'error':str(e)}
+            return {'errors':[str(e)]},400
     
     def post(self):
         self.authenticate()
@@ -109,7 +109,7 @@ class AllResource(Resource):
             db.session.commit()
             return make_response({'data':item.to_dict(rules=self.rules)}, 201)
         except Exception as e:
-            return {'error':str(e)},400
+            return {'error':[str(e)]},400
 
 
 class UserOrders(AllResource):
@@ -125,7 +125,7 @@ class UserOrders(AllResource):
             items_dict=[i.to_dict() for i in query.all()]
             return make_response({'data':items_dict, 'total':total_count},200)
         except Exception as e:
-            return {'error':str(e)}
+            return {'error':[str(e)]},400
 
 class UserSales(Resource):
     def authenticate(self):
@@ -135,9 +135,13 @@ class UserSales(Resource):
     
     def get(self):
         self.authenticate()
-        sales=Sale.query.join(Order).filter(Order.user_id==session['user_id']).all()
-        sales_dict=[s.to_dict() for s in sales]
-        return make_response({'data':sales_dict},200)
+        try:
+            
+            sales=Sale.query.join(Order).filter(Order.user_id==session['user_id']).all()
+            sales_dict=[s.to_dict() for s in sales]
+            return make_response({'data':sales_dict},200)
+        except Exception as e:
+            return {'error':[str(e)]},400
 
 
 class SingleResource(Resource):
@@ -163,7 +167,7 @@ class SingleResource(Resource):
     
     
     def patch(self,id):
-        self.authenticate()
+        # self.authenticate()
         
         item=self.Model.query.filter_by(id=id).first()
         
@@ -180,7 +184,7 @@ class SingleResource(Resource):
             
         except Exception as e:
             db.session.rollback()
-            return {'error':str(e)}, 400
+            return {'error':[str(e)]}, 400
     
     def delete(self,id):
         self.authenticate()

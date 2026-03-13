@@ -75,11 +75,12 @@ with app.app_context():
     print("Seeding Orders...")
     orders = []
     for _ in range(NUM_ORDERS):
+        status = random.choice(["read", "unread"])
         o = Order(
             user_id=random.choice(users).id,
-            product_id=random.choice(products).id,
-            quantity=random.randint(1, 5),
-            created_at=random_date_within()
+            status=random.choice(products).id,
+            total_amount=random.randint(1000, 50000),
+            order_date=random_date_within()
         )
         db.session.add(o)
         orders.append(o)
@@ -94,7 +95,7 @@ with app.app_context():
             product_id=product.id,
             quantity=quantity,
             total_price=round(product.price * quantity, 2),
-            created_at=random_date_within()
+            # created_at=random_date_within()
         )
         db.session.add(sale)
 

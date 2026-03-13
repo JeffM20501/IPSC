@@ -14,11 +14,11 @@ class User(db.Model, SerializerMixin):
     email =db.Column(db.String, unique=True, nullable=False)
     _password_hash=db.Column(db.String, nullable=False)
     role=db.Column(db.String, default='staff')
-    profile_image=db.Column(db.String, nullable=True)
+    profile_image=db.Column(db.String)
     created_at=db.Column(db.DateTime, server_default=db.func.now())
     updated_at=db.Column(db.DateTime, server_default=db.func.now())
     
-    orders=db.relationship('Order', backref='user')
+    orders=db.relationship('Order', backref='user', cascade="all, delete-orphan")
     
     @validates('fullname')
     def validate_fullname(self,key,fullname):

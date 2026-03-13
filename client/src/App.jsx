@@ -32,7 +32,7 @@ function App() {
         if(!checkSessionRes.ok) throw new Error('Not Authenticated')
         
           const userData=await checkSessionRes.json()
-          console.log(userData)
+          // console.log(userData)
           setUser(userData)
 
           const [productsRes,suppliersRes, ordersRes,salesRes,alertsRes]=await Promise.allSettled([
@@ -78,11 +78,10 @@ function App() {
     loadData()
     
   },[navigate])
-  console.log(user)
 
   async function handleProfileEdit(e, formObj){
     e.preventDefault()
-    setSending(prev=>!prev)
+    setSending(true)
     const configObj={
       method:'PATCH',
       headers:{
@@ -90,21 +89,22 @@ function App() {
       },
       body:JSON.stringify(formObj)
     }
+    formObj.id
     try{
       const r = await fetch(`/api/users/${encodeURIComponent(formObj.id)}`, configObj)
       
-      if(!r.ok){
-          throw new Error(`Error status: ${r.status}`)
-        }
+      if(!r.ok) throw new Error(`Error status: ${r.status}`)
+        
+      const resdata=await r.json()
       
-        const updatedUserDta = await r.json()
+      const updatedUserDta = resdata.data
       setUser(updatedUserDta)
       console.log("Success", updatedUserDta)
     }catch(error){
       console.log(error)
       setError(error.message)
     }finally{
-      setSending(prev=>!prev)
+      setSending(false)
     }
   }
 

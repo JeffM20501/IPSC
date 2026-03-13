@@ -8,7 +8,7 @@ class Order(db.Model, SerializerMixin):
 
     __tablename__ = "orders" 
     
-    serialize_rules = ("-sales.order,")  
+    serialize_rules = ("-sales.order",)  
    
 
 
@@ -18,7 +18,7 @@ class Order(db.Model, SerializerMixin):
     status = db.Column(db.String, nullable=False)
     total_amount = db.Column(db.Numeric(10), nullable=False) 
 
-    sales = db.relationship("Sale", back_populates="order", cascade="all, delete-orphan") 
+    sales = db.relationship("Sale", backref="order", cascade="all, delete-orphan") 
 
 from .sale import Sale
 from sqlalchemy import Column, Integer, ForeignKey
