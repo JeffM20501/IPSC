@@ -5,33 +5,21 @@ import {
 } from "recharts";
 import { FaDollarSign, FaUser, FaChartLine, FaBox } from "react-icons/fa";
 import { useOutletContext } from "react-router-dom";
+import './Analytics.css';
 
 const colors = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#6366F1"];
 
 function KPICard({ title, value, icon, chart }) {
   return (
-    <div
-      className="kpi-card"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        minWidth: "100px",
-        padding: "20px",
-        backgroundColor: "var(--cardBg)",
-        borderRadius: "12px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-        border: `1px solid var(--borderColor)`,
-      }}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div className="kpi-card">
+      <div className="kpi-header">
         <div>
-          <h4 style={{ margin: 0, fontSize: "16px" }}>{title}</h4>
-          <p style={{ margin: 0, fontSize: "24px", fontWeight: "700" }}>{value}</p>
+          <h4>{title}</h4>
+          <p className="kpi-value">{value}</p>
         </div>
-        <div style={{ fontSize: "30px" }}>{icon}</div>
+        <div className="kpi-icon">{icon}</div>
       </div>
-      {chart && <div style={{ marginTop: "10px" }}>{chart}</div>}
+      {chart && <div className="kpi-chart">{chart}</div>}
     </div>
   );
 }
@@ -52,11 +40,8 @@ function Analytics() {
     const categoryTotals = {};
     const productsRevenue = products.map((p) => {
       const totalRevenue = p.sales.reduce((sum, s) => sum + s.unitsSold * p.price, 0);
-
-      // category revenue
       categoryTotals[p.category] = (categoryTotals[p.category] || 0) + totalRevenue;
 
-      // customer growth
       p.sales.forEach((s) => {
         const month = s.date.substring(0, 7);
         monthlyRevenueTotals[month] = (monthlyRevenueTotals[month] || 0) + totalRevenue;
@@ -69,15 +54,12 @@ function Analytics() {
     setMonthlyRevenue(
       Object.keys(monthlyRevenueTotals).map((m) => ({ month: m, revenue: monthlyRevenueTotals[m] }))
     );
-
-    setTopProducts(productsRevenue.sort((a, b) => b.revenue - a.revenue).slice(0, 5));
-
+    setTopProducts(productsRevenue.sort((a,b)=>b.revenue - a.revenue).slice(0,5));
     setCustomerGrowth(
-      Object.keys(customerGrowthData).map((m) => ({ month: m, customers: customerGrowthData[m] }))
+      Object.keys(customerGrowthData).map((m)=>({ month: m, customers: customerGrowthData[m] }))
     );
-
     setSalesByCategory(
-      Object.keys(categoryTotals).map((c) => ({ category: c, sales: categoryTotals[c] }))
+      Object.keys(categoryTotals).map((c)=>({ category: c, sales: categoryTotals[c] }))
     );
   }, [products]);
 
@@ -85,19 +67,65 @@ function Analytics() {
   const totalCustomers = customerGrowth.reduce((sum, c) => sum + c.customers, 0);
   const topProduct = topProducts[0]?.name || "-";
 
+  const textColor = getComputedStyle(document.documentElement).getPropertyValue('--textColor').trim();
+  const cardBg = getComputedStyle(document.documentElement).getPropertyValue('--cardBg').trim();
+
+  const chartsData = [
+    {
+      title: "Monthly Revenue Trends",
+      chart: (
+        <LineChart data={monthlyRevenue}>
+          <XAxis dataKey="month" stroke={textColor} />
+          <YAxis stroke={textColor} />
+          <Tooltip contentStyle={{ backgroundColor: cardBg, color: textColor }} labelStyle={{ color: textColor }} />
+          <Line dataKey="revenue" stroke="#3B82F6" strokeWidth={3} />
+        </LineChart>
+      )
+    },
+    {
+      title: "Top 5 Products by Revenue",
+      chart: (
+        <BarChart data={topProducts}>
+          <XAxis dataKey="name" stroke={textColor} />
+          <YAxis stroke={textColor} />
+          <Tooltip contentStyle={{ backgroundColor: cardBg, color: textColor }} labelStyle={{ color: textColor }} />
+          <Legend wrapperStyle={{ color: textColor }} />
+          <Bar dataKey="revenue" fill="#10B981" radius={5} />
+        </BarChart>
+      )
+    },
+    {
+      title: "Customer Growth",
+      chart: (
+        <AreaChart data={customerGrowth}>
+          <XAxis dataKey="month" stroke={textColor} />
+          <YAxis stroke={textColor} />
+          <Tooltip contentStyle={{ backgroundColor: cardBg, color: textColor }} labelStyle={{ color: textColor }} />
+          <Area dataKey="customers" stroke="#F59E0B" fill="rgba(245,158,11,0.2)" />
+        </AreaChart>
+      )
+    },
+    {
+      title: "Sales by Category",
+      chart: (
+        <PieChart>
+          <Pie data={salesByCategory} dataKey="sales" nameKey="category" outerRadius={80} label>
+            {salesByCategory.map((_, i) => (
+              <Cell key={i} fill={colors[i % colors.length]} />
+            ))}
+          </Pie>
+          <Tooltip contentStyle={{ backgroundColor: cardBg, color: textColor }} labelStyle={{ color: textColor }} />
+          <Legend wrapperStyle={{ color: textColor }} />
+        </PieChart>
+      )
+    }
+  ];
+
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="analytics-page">
       <h1>Sales & Performance Analytics</h1>
 
-      {/* KPI Cards */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: "20px",
-          marginBottom: "30px"
-        }}
-      >
+      <div className="kpi-grid">
         <KPICard
           title="Total Revenue"
           value={`$${totalRevenue.toLocaleString()}`}
@@ -126,62 +154,17 @@ function Analytics() {
         <KPICard title="Categories Sold" value={salesByCategory.length} icon={<FaBox />} />
       </div>
 
-      {/* Charts Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
-        {/* Monthly Revenue */}
-        <div className="card" style={{ background: "var(--cardBg)", padding: "20px", borderRadius: "12px" }}>
-          <h3>Monthly Revenue Trends</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={monthlyRevenue}>
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Line dataKey="revenue" stroke="#3B82F6" strokeWidth={3} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Top Products */}
-        <div className="card" style={{ background: "var(--cardBg)", padding: "20px", borderRadius: "12px" }}>
-          <h3>Top 5 Products by Revenue</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={topProducts}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="revenue" fill="#10B981" radius={5} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Customer Growth */}
-        <div className="card" style={{ background: "var(--cardBg)", padding: "20px", borderRadius: "12px" }}>
-          <h3>Customer Growth</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <AreaChart data={customerGrowth}>
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Area dataKey="customers" stroke="#F59E0B" fill="rgba(245,158,11,0.2)" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Sales by Category */}
-        <div className="card" style={{ background: "var(--cardBg)", padding: "20px", borderRadius: "12px" }}>
-          <h3>Sales by Category</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie data={salesByCategory} dataKey="sales" nameKey="category" outerRadius={80} label>
-                {salesByCategory.map((_, i) => (
-                  <Cell key={i} fill={colors[i % colors.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+      <div className="charts-grid">
+        {chartsData.map((c, i) => (
+          <div className="card" key={i}>
+            <h3>{c.title}</h3>
+            <div className="chart-card-container">
+              <ResponsiveContainer width="100%" height="100%">
+                {c.chart}
+              </ResponsiveContainer>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

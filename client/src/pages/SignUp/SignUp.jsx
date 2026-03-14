@@ -3,34 +3,25 @@ import './SignUp.css'
 import IPSC from '../../assets/logo.png'
 import {FaEnvelope, FaUser, FaEye, FaEyeSlash, FaLock, FaCoffee} from 'react-icons/fa'
 import { useNavigate, Link } from 'react-router-dom'
+import * as yup from 'yup'
+import { useFormik } from 'formik'
 
 function SignUp() {
     const navigate = useNavigate()
 
-    const [formObj, setFormObj] = useState({
-        fullname:'',
-        email:'',
-        password_hash:'',
-        role:''
-    })
     const [showPassword,setShowPassword]=useState(false)
     const [error,setError]=useState('')
 
-    function handleChange(e){
-        const {name,value}=e.target
-        setFormObj({...formObj,[name]:value})
-    }
 
     function toggleShowPassword(){
         setShowPassword(prev=>!prev)
     }
 
-    async function handleSubmit(e){
-        e.preventDefault()
+    async function handleSubmit(values){
         const configObj={
             method:"POST",
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify(formObj)
+            body:JSON.stringify(values)
         }
         try{
             const r = await fetch('/api/signup',configObj)
@@ -49,59 +40,113 @@ function SignUp() {
 
     }
 
+    const formSchema=yup.object().shape({
+            email:yup
+                .string()
+                .required('Email is required')
+                .email('Invalid Email'),
+            password_hash:yup
+                .string()
+                .required('Passwords is required')
+                .min(8,'Password needs at least 8 Characters'),
+            role:yup
+                .string()
+                .required('Role is required'),
+            fullname:yup
+                .string()
+                .required('Full name is required')
+
+    })
+
+    const formik=useFormik({
+        initialValues:{
+            email:'',
+            password_hash:'',
+            fullname:'',
+            role:''
+        },
+        validationSchema:formSchema,
+        onSubmit:(values)=>handleSubmit(values)
+
+    })
+
   return (
     <section className='signup-page'>
         <img src={IPSC} alt='logo image'/>
         <h2>Create Your Account</h2>
         <h4>Join us to get started. It's free and easy</h4>
 
-        <form className='sign-up-form' onSubmit={handleSubmit}>
+        <form className='sign-up-form' onSubmit={formik.handleSubmit}>
             <label htmlFor="">
-                <FaUser size={20}/>
-                <input 
-                    type="text" 
-                    name='fullname'
-                    placeholder='Fullname'
-                    value={formObj.fullname}
-                    onChange={handleChange}
-                    required
-                />
+                <div>
+                    <FaUser size={20}/>
+                    <input 
+                        type="text" 
+                        name='fullname'
+                        placeholder='Fullname'
+                        value={formik.values.fullname}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        required
+                    />
+                </div>
+                {formik.touched.fullname && formik.errors.fullname && (
+                    <p  className='error'>{formik.errors.fullname}</p>
+                )}
             </label>
             <label>
-                <FaEnvelope size={20}/>
-                <input 
-                    type="email"
-                    name='email'
-                    placeholder='Email adress'
-                    value={formObj.email}
-                    onChange={handleChange}
-                    required
-                />
+                <div>
+                    <FaEnvelope size={20}/>
+                    <input 
+                        type="email"
+                        name='email'
+                        placeholder='Email adress'
+                        value={formik.values.email}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        required
+                    />
+                </div>
+                {formik.touched.email && formik.errors.email && (
+                    <p  className='error'>{formik.errors.email}</p>
+                )}
             </label>
             <label className='password-field'>
-                <FaLock size={20}/>
-                <input 
-                    type={showPassword?'text':'password'} 
-                    name='password_hash'
-                    placeholder='Password'
-                    value={formObj.password_hash}
-                    onChange={handleChange}
-                    required
-                />
-                <button type='button' className='toggle-password' onClick={toggleShowPassword}>
-                    {showPassword?<FaEye size={20}/>:<FaEyeSlash size={20}/>}
-                </button>
+                <div>
+                    <FaLock size={20}/>
+                    <input
+                        name='password_hash'
+                        placeholder='Password'
+                        type={showPassword?'text':'password'}
+                        value={formik.values.password_hash}
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        required
+                    />
+                    <button type='button' className='toggle-password' onClick={toggleShowPassword}>
+                        {showPassword ? <FaEye size={20}/>: <FaEyeSlash size={20}/>}
+                    </button>
+                </div>
+                {formik.touched.password_hash && formik.errors.password_hash && (
+                    <p  className='error'>{formik.errors.password_hash}</p>
+                )}
             </label>
             <label>
-                <FaCoffee size={20}/>
+                <div>
+                    <FaCoffee size={20}/>
                 <input 
                     type="text" 
                     name='role'
                     placeholder='Role'
-                    value={formObj.role}
-                    onChange={handleChange}
+                    value={formik.values.role}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     required
                 />
+                </div>
+                {formik.touched.role && formik.errors.role && (
+                    <p  className='error'>{formik.errors.role}</p>
+                )}
             </label>
             {error?<p className='error'>{error}</p>:null}
             <button type='submit'>Create Account</button>

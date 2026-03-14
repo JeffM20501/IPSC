@@ -1,5 +1,5 @@
 .signup-page{
-    margin-top: 60px;
+    margin-top: 80px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -23,16 +23,20 @@
     display: flex;
     flex-direction: column;
 }
-.sign-up-form label{
+/* .sign-up-form label{
     display: flex;
     justify-content: center;
     align-items: baseline;
     gap: 10px;
+} */
+.sign-up-form div{
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 15px;
 }
-
 .sign-up-form input{
     padding: 10px;
-    margin-top: 20px;
     border-radius: 15px;
     font-size: 1.3rem;
     inline-size: 100%;
@@ -58,7 +62,7 @@
     right: -9px;
     border-radius: 15px;
     top: 20%;
-    transform:  translateY(-50%);
+    transform:  translateY(-46%);
     background: none;
     cursor: pointer;
 }
@@ -66,5 +70,5 @@
 
 .error{
     color: red;
-    margin-top: 20px;
+    margin: 0;
 }

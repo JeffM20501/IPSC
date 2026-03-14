@@ -16,12 +16,14 @@
     "@mui/icons-material": "^7.3.5",
     "@mui/material": "^7.3.5",
     "@vercel/blob": "^2.0.0",
+    "formik": "^2.4.9",
     "json-server": "1.0.0-beta.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.9.6",
-    "recharts": "^3.4.1"
+    "recharts": "^3.4.1",
+    "yup": "^1.7.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

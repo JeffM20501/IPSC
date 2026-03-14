@@ -4,6 +4,7 @@ import './SettingsPage.css';
 import { FaEject, FaUser } from 'react-icons/fa';
 import LoadingCircle from '../../components/LoadingCircle';
 
+
 function SettingsPage() {
   // Get users from Outlet context
   const { user, onProfileEdit, sending, onLogOut } = useOutletContext();

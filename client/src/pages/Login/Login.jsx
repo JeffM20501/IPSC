@@ -4,35 +4,25 @@ import './Login.css'
 import { useState } from 'react'
 import { FaEye, FaEyeSlash, FaLock, FaEnvelope } from 'react-icons/fa'
 import { useNavigate, Link } from 'react-router-dom'
+import { useFormik } from "formik";
+import * as yup from 'yup'
 
 function Login() {
 
     const navigate=useNavigate()
 
-    const [formObj,setFormObj]=useState({
-        email:'',
-        password:''
-    })
-    const [error,setError]=useState([])
+
+    const [serverError,setServerError]=useState('')
     const [showPassword,setShowPassword]=useState(false)
     
-    function handleChange(e){
-        const {name,value}=e.target
-        setFormObj({...formObj, [name]:value})
-    }
-    
-    function toggleShowPassword(){
-        setShowPassword(prev=>!prev)
-    }
 
-    async function handleSubmit(e){
-        e.preventDefault();
+    async function handleSubmit(values){
         const config_obj={
             method:'POST',
             headers:{
                 'Content-Type':'application/json'
             },
-            body:JSON.stringify(formObj)
+            body:JSON.stringify(values)
         }
     
         const r = await fetch('/api/login',config_obj)
@@ -40,8 +30,33 @@ function Login() {
             navigate('/')
         }else{
             const err= await r.json()
-            setError(err.error||'Login Failed')
+            setServerError(err.error||'Login Failed')
         }
+    }
+
+    const formSchema=yup.object().shape({
+        email:yup
+            .string()
+            .required('Email is required')
+            .email('Invalid Email'),
+        password:yup
+            .string()
+            .required('Passwords is required')
+            .min(8,'Password needs at least 8 Characters'),
+    })
+
+    const formik=useFormik({
+        initialValues:{
+            email:'',
+            password:''
+        },
+        validationSchema:formSchema,
+        onSubmit:(values)=>handleSubmit(values)
+
+    })
+    
+    function toggleShowPassword(){
+        setShowPassword(prev=>!prev)
     }
 
   return (
@@ -50,33 +65,45 @@ function Login() {
         <h2>Sign In to Your Account</h2>
         <h4>Welcome back. Please enter your details</h4>
         
-        <form className='sign-in-form' onSubmit={handleSubmit}>
+        <form className='sign-in-form' onSubmit={formik.handleSubmit}>
             <label htmlFor="">
-                <FaEnvelope size={20}/>
-                <input
-                    name='email'
-                    placeholder='Email Address'
-                    type='email'
-                    value={formObj.email}
-                    onChange={handleChange}
-                    required
-                />
+                <div>
+                    <FaEnvelope size={20}/>
+                    <input
+                        name='email'
+                        placeholder='Email Address'
+                        type='email'
+                        value={formik.values.email}
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        required
+                    />
+                </div>
+                {formik.touched.email && formik.errors.email && (
+                    <p className='error'>{formik.errors.email}</p>
+                )}
             </label>
-            <label htmlFor="" className='password-field'><FaLock size={20}/>
-                <input
-                    name='password'
-                    placeholder='Password'
-                    type={showPassword?'text':'password'}
-                    value={formObj.password}
-                    onChange={handleChange}
-                    required
-                />
-
-                <button type='button' className='toggle-password' onClick={toggleShowPassword}>
-                    {showPassword ? <FaEye size={20}/>: <FaEyeSlash size={20}/>}
-                </button>
+            <label htmlFor="" className='password-field'>
+                <div>
+                    <FaLock size={20}/>
+                    <input
+                        name='password'
+                        placeholder='Password'
+                        type={showPassword?'text':'password'}
+                        value={formik.values.password}
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        required
+                    />
+                    <button type='button' className='toggle-password' onClick={toggleShowPassword}>
+                        {showPassword ? <FaEye size={20}/>: <FaEyeSlash size={20}/>}
+                    </button>
+                </div>
+                {formik.touched.password && formik.errors.password && (
+                    <p  className='error'>{formik.errors.password}</p>
+                )}
             </label>
-            {error&&<p className='error'>{error}</p>}
+            {serverError&&<p className='error'>{serverError}</p>}
             <button type='submit'>Sign In</button>
             <p>Don't have an account?<Link to='/signup'>Sign up</Link></p>
         </form>
