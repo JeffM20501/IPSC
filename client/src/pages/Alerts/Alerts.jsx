@@ -18,7 +18,7 @@ function Alerts() {
   useEffect(() => {
     async function fetchAlerts() {
       try {
-        const res = await fetch('/alerts');
+        const res = await fetch('api/alerts');
         if (!res.ok) throw new Error('Failed to fetch alerts');
 
         const data = await res.json();
@@ -44,7 +44,7 @@ function Alerts() {
 
   const acknowledgeAlert = async (id) => {
     try {
-      const res = await fetch(`/alerts/${id}`, {
+      const res = await fetch(`api/alerts/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'read' }),
@@ -63,7 +63,7 @@ function Alerts() {
 
   const deleteAlert = async (id) => {
     try {
-      const res = await fetch(`/alerts/${id}`, { method: 'DELETE' });
+      const res = await fetch(`api/alerts/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete alert');
 
       setAlerts(prev => prev.filter(a => a.id !== id));
