@@ -18,7 +18,22 @@ NUM_SALES = 20
 NUM_ALERTS = 10
 
 def random_date_within(days=30):
-    return datetime.now() - timedelta(days=random.randint(0, days), hours=random.randint(0,23), minutes=random.randint(0,59))
+    return datetime.now() - timedelta(
+        days=random.randint(0, days),
+        hours=random.randint(0, 23),
+        minutes=random.randint(0, 59)
+    )
+
+def create_stock_alert(product):
+    """Automatically create a CRITICAL alert if stock is low"""
+    if product.stock_quantity < 10:
+        alert = Alert(
+            message=f"CRITICAL: {product.name} stock is at {product.stock_quantity}",
+            product_id=product.id,
+            status="unread",
+            created_at=datetime.now()
+        )
+        db.session.add(alert)
 
 with app.app_context():
     print("Creating database tables if they don't exist...")
@@ -36,7 +51,7 @@ with app.app_context():
     print("Seeding Users...")
     users = []
 
-    # Fixed users
+    # Fixed users for login
     fixed_users = [
         {"fullname": "Alice Johnson", "email": "alice@ipsc.com", "role": "admin"},
         {"fullname": "Bob Smith", "email": "bob@ipsc.com", "role": "staff"},
@@ -53,7 +68,7 @@ with app.app_context():
         db.session.add(u)
         users.append(u)
 
-    # Random
+    # Random users
     for _ in range(NUM_RANDOM_USERS):
         u = User(
             fullname=fake.name(),
@@ -119,19 +134,22 @@ with app.app_context():
         )
         db.session.add(sale)
 
-    # Seed Alerts
-    for _ in range(NUM_ALERTS):
-        product = random.choice(products)
-        status = random.choice(["read", "unread"])
-        level = "CRITICAL" if product.stock_quantity < 10 else random.choice(["WARNING", "INFO"])
-        message = f"{level}: {product.name} stock is at {product.stock_quantity}"
-        alert = Alert(
-            message=message,
-            product_id=product.id,
-            status=status,
-            created_at=random_date_within()
-        )
-        db.session.add(alert)
+    # Alerts
+    for product in products:
+        create_stock_alert(product)
+
+        # Random other alerts
+        for _ in range(random.randint(0, 2)):
+            status = random.choice(["read", "unread"])
+            level = random.choice(["WARNING", "INFO"])
+            message = f"{level}: {product.name} stock is at {product.stock_quantity}"
+            alert = Alert(
+                message=message,
+                product_id=product.id,
+                status=status,
+                created_at=random_date_within()
+            )
+            db.session.add(alert)
 
     db.session.commit()
     print("Database seeded with Users, Suppliers, Products, Orders, Sales, and Alerts!")
